@@ -4,6 +4,7 @@ include ':libui'
 include ':libui-ktx'
 
 include ':samples:controlgallery'
+include ':samples:data-binding-1'
 include ':samples:datetime'
 include ':samples:drawtext'
 include ':samples:form'

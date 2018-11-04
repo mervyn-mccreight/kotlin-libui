@@ -2,6 +2,7 @@ package libui.ktx
 
 import kotlinx.cinterop.*
 import libui.*
+import libui.ktx.databinding.*
 import libui.ktx.draw.Color
 import libui.ktx.draw.Font
 import platform.posix.*
@@ -38,8 +39,9 @@ import platform.posix.*
 /** DSL builder for a simple single line text entry widget. */
 inline fun Container.textfield(
     readonly: Boolean = false,
+    modelEntry: ModelEntry<String>? = null,
     init: TextField.() -> Unit = {}
-): TextField = add(TextField()
+): TextField = add(modelEntry?.let { TextField(it) } ?: TextField()
         .apply { if (readonly) this.readonly = readonly }
         .apply(init))
 
@@ -61,8 +63,20 @@ inline fun Container.searchfield(
         .apply(init))
 
 /** Wrapper class for [uiEntry] - a simple single line text entry widget */
-open class TextField internal constructor(alloc: CPointer<uiEntry>?) : Control<uiEntry>(alloc) {
-    constructor(): this(uiNewEntry())
+open class TextField internal constructor(alloc: CPointer<uiEntry>?, val modelEntry: ModelEntry<String>) : Control<uiEntry>(alloc) {
+    constructor(): this(ModelEntry(""))
+    constructor(alloc: CPointer<uiEntry>?): this(alloc, ModelEntry(""))
+    constructor(modelEntry: ModelEntry<String>): this(uiNewEntry(), modelEntry) {
+        this.value = modelEntry.get()
+        modelEntry.addListener({newValue -> this.value = newValue})
+        addOnChangeListener()
+    }
+
+    private fun addOnChangeListener() {
+        uiEntryOnChanged(ptr, staticCFunction { _, ref -> with(ref.to<TextField>()) {
+            modelEntry.update(this.value)
+        }}, ref.asCPointer())
+    }
 
     /** The current text of the TextField. */
     var value: String
@@ -386,12 +400,16 @@ class TimePicker : DateTimePicker(uiNewTimePicker()) {
 
 /** DSL builder for a static text label. */
 inline fun Container.label(
-    text: String,
+    text: String = "",
+    modelEntry: ModelEntry<String>? = null,
     init: Label.() -> Unit = {}
-): Label = add(Label(text).apply(init))
+): Label = add(Label(modelEntry ?: ModelEntry<String>(text)).apply(init))
 
 /** Wrapper class for [uiLabel] - a static text label. */
-class Label(text: String) : Control<uiLabel>(uiNewLabel(text)) {
+class Label(modelEntry: ModelEntry<String>) : Control<uiLabel>(uiNewLabel(modelEntry.get())) {
+    init {
+        modelEntry.addListener({newText -> this.text = newText})
+    }
 
     /** The static text of the label. */
     var text: String
