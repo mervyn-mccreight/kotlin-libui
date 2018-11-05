@@ -400,10 +400,14 @@ class TimePicker : DateTimePicker(uiNewTimePicker()) {
 
 /** DSL builder for a static text label. */
 inline fun Container.label(
-    text: String = "",
-    modelEntry: ModelEntry<String>? = null,
+    modelEntry: ModelEntry<String>,
     init: Label.() -> Unit = {}
-): Label = add(Label(modelEntry ?: ModelEntry(text)).apply(init))
+): Label = add(Label(modelEntry).apply(init))
+
+inline fun Container.label(
+    text: String,
+    init: Label.() -> Unit = {}
+): Label = add(Label(ModelEntry(text)).apply(init))
 
 /** Wrapper class for [uiLabel] - a static text label. */
 class Label(modelEntry: ModelEntry<String>) : Control<uiLabel>(uiNewLabel(modelEntry.get())) {
