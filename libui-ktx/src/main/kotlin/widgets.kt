@@ -41,7 +41,7 @@ inline fun Container.textfield(
     readonly: Boolean = false,
     modelEntry: ModelEntry<String>? = null,
     init: TextField.() -> Unit = {}
-): TextField = add(modelEntry?.let { TextField(it) } ?: TextField()
+): TextField = add(TextField(modelEntry ?: ModelEntry(""))
         .apply { if (readonly) this.readonly = readonly }
         .apply(init))
 
@@ -64,7 +64,7 @@ inline fun Container.searchfield(
 
 /** Wrapper class for [uiEntry] - a simple single line text entry widget */
 open class TextField internal constructor(alloc: CPointer<uiEntry>?, val modelEntry: ModelEntry<String>) : Control<uiEntry>(alloc) {
-    constructor(): this(ModelEntry(""))
+
     constructor(alloc: CPointer<uiEntry>?): this(alloc, ModelEntry(""))
     constructor(modelEntry: ModelEntry<String>): this(uiNewEntry(), modelEntry) {
         this.value = modelEntry.get()
@@ -403,7 +403,7 @@ inline fun Container.label(
     text: String = "",
     modelEntry: ModelEntry<String>? = null,
     init: Label.() -> Unit = {}
-): Label = add(Label(modelEntry ?: ModelEntry<String>(text)).apply(init))
+): Label = add(Label(modelEntry ?: ModelEntry(text)).apply(init))
 
 /** Wrapper class for [uiLabel] - a static text label. */
 class Label(modelEntry: ModelEntry<String>) : Control<uiLabel>(uiNewLabel(modelEntry.get())) {
