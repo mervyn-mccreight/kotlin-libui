@@ -69,12 +69,8 @@ open class TextField internal constructor(alloc: CPointer<uiEntry>?, val modelEn
     constructor(modelEntry: ModelEntry<String>): this(uiNewEntry(), modelEntry) {
         this.value = modelEntry.get()
         modelEntry.addListener({newValue -> this.value = newValue})
-        addOnChangeListener()
-    }
-
-    private fun addOnChangeListener() {
         uiEntryOnChanged(ptr, staticCFunction { _, ref -> with(ref.to<TextField>()) {
-            modelEntry.update(this.value)
+            this.modelEntry.update(this.value)
         }}, ref.asCPointer())
     }
 
