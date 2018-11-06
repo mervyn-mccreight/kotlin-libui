@@ -38,10 +38,10 @@ import platform.posix.*
 
 /** DSL builder for a simple single line text entry widget. */
 inline fun Container.textfield(
-    readonly: Boolean = false,
-    modelEntry: ModelEntry<String>? = null,
-    init: TextField.() -> Unit = {}
-): TextField = add(TextField(modelEntry ?: ModelEntry(""))
+        readonly: Boolean = false,
+        modelEntry: ModelEntry<String> = ModelEntry(""),
+        init: TextField.() -> Unit = {}
+): TextField = add(TextField(modelEntry)
         .apply { if (readonly) this.readonly = readonly }
         .apply(init))
 
