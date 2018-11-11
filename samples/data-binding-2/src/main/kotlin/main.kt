@@ -9,6 +9,17 @@ fun main(args: Array<String>) {
     }
 
     val model = Model()
+    lateinit var values: TextArea
+
+    val updateValues: ChangeListener<String> = {
+        values.value = "${model.textFieldModel.value}\n" +
+                "${model.passwordFieldModel.value}\n" +
+                "${model.searchFieldModel.value}"
+    }
+
+    model.textFieldModel.addListener(updateValues)
+    model.passwordFieldModel.addListener(updateValues)
+    model.searchFieldModel.addListener(updateValues)
 
     appWindow(
             title = "Data-binding Example #2",
@@ -16,14 +27,24 @@ fun main(args: Array<String>) {
             height = 480
     ) {
         vbox {
-            label("TextField")
-            textfield(modelEntry = model.textFieldModel)
+            group("Entries") { stretchy = true }.form {
+                textfield(modelEntry = model.textFieldModel) {
+                    label = "TextField"
+                }
 
-            label("PasswordField")
-            passwordfield(modelEntry = model.passwordFieldModel)
+                passwordfield(modelEntry = model.passwordFieldModel) {
+                    label = "PasswordField"
+                }
 
-            label("SearchField")
-            searchfield(modelEntry = model.searchFieldModel)
+                searchfield(modelEntry = model.searchFieldModel) {
+                    label = "SearchField"
+                }
+
+                values = textarea() {
+                    label = "Values"
+                    stretchy = true
+                }
+            }
         }
     }
 }
