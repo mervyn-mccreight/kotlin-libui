@@ -114,12 +114,13 @@ class SearchField(modelEntry: ModelEntry<String>) : TextField(uiNewSearchEntry()
  *  @param[readonly] specifies that a text should be read-only */
 inline fun Container.textarea(
     wrap: Boolean = true,
+    modelEntry: ModelEntry<String> = ModelEntry(""),
     init: TextArea.() -> Unit = {}
-): TextArea = add(TextArea(wrap)
+): TextArea = add(TextArea(modelEntry, wrap)
         .apply(init))
 
 /** Wrapper class for [uiMultilineEntry] - a multiline plain text editing widget */
-class TextArea(wrap: Boolean = true) : Control<uiMultilineEntry>(
+class TextArea(val modelEntry: ModelEntry<String>, wrap: Boolean = true) : Control<uiMultilineEntry>(
     if (wrap) uiNewMultilineEntry() else uiNewNonWrappingMultilineEntry()) {
 
     /** The current text in the area. */
@@ -131,6 +132,16 @@ class TextArea(wrap: Boolean = true) : Control<uiMultilineEntry>(
     var readonly: Boolean
         get() = uiMultilineEntryReadOnly(ptr) != 0
         set(readonly) = uiMultilineEntrySetReadOnly(ptr, if (readonly) 1 else 0)
+
+    init {
+        this.value = modelEntry.get()
+        modelEntry.addListener({ newValue -> this.value = newValue })
+        uiMultilineEntryOnChanged(ptr, staticCFunction { _, ref ->
+            with(ref.to<TextArea>()) {
+                this.modelEntry.update(this.value)
+            }
+        }, ref.asCPointer())
+    }
 
     /** Adds the text to the end of the area. */
     fun append(text: String) = uiMultilineEntryAppend(ptr, text)
