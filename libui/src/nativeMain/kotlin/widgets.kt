@@ -1,8 +1,23 @@
 package libui.ktx
 
+import cnames.structs.uiButton
+import cnames.structs.uiCheckbox
+import cnames.structs.uiColorButton
+import cnames.structs.uiCombobox
+import cnames.structs.uiDateTimePicker
+import cnames.structs.uiEditableCombobox
+import cnames.structs.uiEntry
+import cnames.structs.uiFontButton
+import cnames.structs.uiLabel
+import cnames.structs.uiMultilineEntry
+import cnames.structs.uiProgressBar
+import cnames.structs.uiRadioButtons
+import cnames.structs.uiSeparator
+import cnames.structs.uiSlider
+import cnames.structs.uiSpinbox
 import kotlinx.cinterop.*
 import libui.*
-import libui.ktx.databinding.*
+import libui.ktx.databinding.ModelEntry
 import libui.ktx.draw.Color
 import libui.ktx.draw.Font
 import platform.posix.*
@@ -81,7 +96,7 @@ open class TextField internal constructor(alloc: CPointer<uiEntry>?, val modelEn
 
     init {
         this.value = modelEntry.get()
-        modelEntry.addListener({ newValue -> this.value = newValue })
+        modelEntry.addListener { newValue -> this.value = newValue }
         uiEntryOnChanged(ptr, staticCFunction { _, ref ->
             with(ref.to<TextField>()) {
                 this.modelEntry.update(this.value)
@@ -135,7 +150,7 @@ class TextArea(val modelEntry: ModelEntry<String>, wrap: Boolean = true) : Contr
 
     init {
         this.value = modelEntry.get()
-        modelEntry.addListener({ newValue -> this.value = newValue })
+        modelEntry.addListener { newValue -> this.value = newValue }
         uiMultilineEntryOnChanged(ptr, staticCFunction { _, ref ->
             with(ref.to<TextArea>()) {
                 this.modelEntry.update(this.value)
