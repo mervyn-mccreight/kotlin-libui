@@ -48,31 +48,26 @@ inline fun Container.textfield(
 /** DSL builder for a text entry widget that mask the input,
  *  useful to edit passwords or other sensible data. */
 inline fun Container.passwordfield(
-    readonly: Boolean = false,
-    init: PasswordField.() -> Unit = {}
-): PasswordField = add(PasswordField()
+        readonly: Boolean = false,
+        modelEntry: ModelEntry<String> = ModelEntry(""),
+        init: PasswordField.() -> Unit = {}
+): PasswordField = add(PasswordField(modelEntry)
         .apply { if (readonly) this.readonly = readonly }
         .apply(init))
 
 /** DSL builder for a text entry widget to search text. */
 inline fun Container.searchfield(
-    readonly: Boolean = false,
-    init: SearchField.() -> Unit = {}
-): SearchField = add(SearchField()
+        readonly: Boolean = false,
+        modelEntry: ModelEntry<String> = ModelEntry(""),
+        init: SearchField.() -> Unit = {}
+): SearchField = add(SearchField(modelEntry)
         .apply { if (readonly) this.readonly = readonly }
         .apply(init))
 
 /** Wrapper class for [uiEntry] - a simple single line text entry widget */
 open class TextField internal constructor(alloc: CPointer<uiEntry>?, val modelEntry: ModelEntry<String>) : Control<uiEntry>(alloc) {
 
-    constructor(alloc: CPointer<uiEntry>?): this(alloc, ModelEntry(""))
-    constructor(modelEntry: ModelEntry<String>): this(uiNewEntry(), modelEntry) {
-        this.value = modelEntry.get()
-        modelEntry.addListener({newValue -> this.value = newValue})
-        uiEntryOnChanged(ptr, staticCFunction { _, ref -> with(ref.to<TextField>()) {
-            this.modelEntry.update(this.value)
-        }}, ref.asCPointer())
-    }
+    constructor(modelEntry: ModelEntry<String>) : this(uiNewEntry(), modelEntry)
 
     /** The current text of the TextField. */
     var value: String
@@ -83,6 +78,16 @@ open class TextField internal constructor(alloc: CPointer<uiEntry>?, val modelEn
     var readonly: Boolean
         get() = uiEntryReadOnly(ptr) != 0
         set(readonly) = uiEntrySetReadOnly(ptr, if (readonly) 1 else 0)
+
+    init {
+        this.value = modelEntry.get()
+        modelEntry.addListener({ newValue -> this.value = newValue })
+        uiEntryOnChanged(ptr, staticCFunction { _, ref ->
+            with(ref.to<TextField>()) {
+                this.modelEntry.update(this.value)
+            }
+        }, ref.asCPointer())
+    }
 
     /** Function to be run when the user makes a change to the TextField.
      *  Only one function can be registered at a time. */
@@ -97,10 +102,10 @@ open class TextField internal constructor(alloc: CPointer<uiEntry>?, val modelEn
 
 /** Wrapper class for [uiEntry] - a text entry widget that mask the input,
  *  useful to edit passwords or other sensible data. */
-class PasswordField : TextField(uiNewPasswordEntry())
+class PasswordField(modelEntry: ModelEntry<String>) : TextField(uiNewPasswordEntry(), modelEntry)
 
 /** Wrapper class for [uiEntry] - a text entry widget to search text. */
-class SearchField : TextField(uiNewSearchEntry())
+class SearchField(modelEntry: ModelEntry<String>) : TextField(uiNewSearchEntry(), modelEntry)
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -210,7 +215,7 @@ inline fun Container.editablecombobox(
     init: EditableCombobox.() -> Unit = {}
 ): EditableCombobox = add(EditableCombobox().apply(init))
 
-/** Wrapper class for [uiEditableCombobox] - 
+/** Wrapper class for [uiEditableCombobox] -
  *  a drop down combo box that allow selection from list or free text entry. */
 class EditableCombobox : Control<uiEditableCombobox>(uiNewEditableCombobox()) {
 
