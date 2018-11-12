@@ -445,12 +445,12 @@ inline fun Container.label(
 inline fun Container.label(
     text: String,
     init: Label.() -> Unit = {}
-): Label = add(Label(ModelEntry(text)).apply(init))
+) = label(ModelEntry(text), init)
 
 /** Wrapper class for [uiLabel] - a static text label. */
 class Label(modelEntry: ModelEntry<String>) : Control<uiLabel>(uiNewLabel(modelEntry.get())) {
     init {
-        modelEntry.addListener({newText -> this.text = newText})
+        modelEntry.addListener { newText -> this.text = newText }
     }
 
     /** The static text of the label. */
