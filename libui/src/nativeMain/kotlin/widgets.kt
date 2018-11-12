@@ -80,7 +80,7 @@ inline fun Container.searchfield(
         .apply(init))
 
 /** Wrapper class for [uiEntry] - a simple single line text entry widget */
-open class TextField internal constructor(alloc: CPointer<uiEntry>?, val modelEntry: ModelEntry<String>) : Control<uiEntry>(alloc) {
+open class TextField internal constructor(alloc: CPointer<uiEntry>?, private val modelEntry: ModelEntry<String>) : Control<uiEntry>(alloc) {
 
     constructor(modelEntry: ModelEntry<String>) : this(uiNewEntry(), modelEntry)
 
@@ -135,7 +135,7 @@ inline fun Container.textarea(
         .apply(init))
 
 /** Wrapper class for [uiMultilineEntry] - a multiline plain text editing widget */
-class TextArea(val modelEntry: ModelEntry<String>, wrap: Boolean = true) : Control<uiMultilineEntry>(
+class TextArea(private val modelEntry: ModelEntry<String>, wrap: Boolean = true) : Control<uiMultilineEntry>(
     if (wrap) uiNewMultilineEntry() else uiNewNonWrappingMultilineEntry()) {
 
     /** The current text in the area. */
