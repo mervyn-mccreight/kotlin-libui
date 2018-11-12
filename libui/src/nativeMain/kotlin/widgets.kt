@@ -177,11 +177,12 @@ class TextArea(private val modelEntry: ModelEntry<String>, wrap: Boolean = true)
 /** DSL builder for a checkbox widget. */
 inline fun Container.checkbox(
     label: String,
+    modelEntry: ModelEntry<Boolean> = ModelEntry(false),
     init: Checkbox.() -> Unit = {}
-): Checkbox = add(Checkbox(label).apply(init))
+): Checkbox = add(Checkbox(label, modelEntry).apply(init))
 
 /** Wrapper class for [uiCheckbox] - a checkbox widget. */
-class Checkbox(label: String) : Control<uiCheckbox>(uiNewCheckbox(label)) {
+class Checkbox(label: String, private val modelEntry: ModelEntry<Boolean>) : Control<uiCheckbox>(uiNewCheckbox(label)) {
 
     /** The static text of the checkbox. */
     var label: String
@@ -192,6 +193,16 @@ class Checkbox(label: String) : Control<uiCheckbox>(uiNewCheckbox(label)) {
     var value: Boolean
         get() = uiCheckboxChecked(ptr) != 0
         set(value) = uiCheckboxSetChecked(ptr, if (value) 1 else 0)
+
+    init {
+        this.value = modelEntry.get()
+        modelEntry.addListener { newValue -> this.value = newValue }
+        uiCheckboxOnToggled(ptr, staticCFunction { _, ref ->
+            with(ref.to<Checkbox>()) {
+                this.modelEntry.update(this.value)
+            }
+        }, ref.asCPointer())
+    }
 
     /** Function to be run when the user clicks the Checkbox.
      *  Only one function can be registered at a time. */

@@ -1,33 +1,36 @@
 import libui.ktx.*
-import libui.ktx.databinding.*
+import libui.ktx.databinding.ModelEntry
 
 fun main(args: Array<String>) {
     class Model {
-        val textFieldModel = ModelEntry<String>("TextField")
-        val passwordFieldModel = ModelEntry<String>("PasswordField")
-        val searchFieldModel = ModelEntry<String>("SearchField")
-        val textAreaModel = ModelEntry<String>("TextArea")
+        val textFieldModel = ModelEntry("TextField")
+        val passwordFieldModel = ModelEntry("PasswordField")
+        val searchFieldModel = ModelEntry("SearchField")
+        val textAreaModel = ModelEntry("TextArea")
+        val checkboxModel = ModelEntry(false)
     }
 
     val model = Model()
     lateinit var values: TextArea
 
-    val updateValues: ChangeListener<String> = {
+    val updateValues = {
         values.value = "${model.textFieldModel.value}\n" +
                 "${model.passwordFieldModel.value}\n" +
                 "${model.searchFieldModel.value}\n" +
-                "${model.textAreaModel.value}"
+                "${model.textAreaModel.value}\n" +
+                "${model.checkboxModel.value}"
     }
 
-    model.textFieldModel.addListener(updateValues)
-    model.passwordFieldModel.addListener(updateValues)
-    model.searchFieldModel.addListener(updateValues)
-    model.textAreaModel.addListener(updateValues)
+    model.textFieldModel.addListener { updateValues() }
+    model.passwordFieldModel.addListener { updateValues() }
+    model.searchFieldModel.addListener { updateValues() }
+    model.textAreaModel.addListener { updateValues() }
+    model.checkboxModel.addListener { updateValues() }
 
     appWindow(
             title = "Data-binding Example #2",
-            width = 640,
-            height = 480
+            width = 1000,
+            height = 600
     ) {
         vbox {
             group("Controls") { stretchy = true }.form {
@@ -44,6 +47,9 @@ fun main(args: Array<String>) {
                 }
                 textarea(modelEntry = model.textAreaModel) {
                     label = "TextArea"
+                }
+                checkbox("Toggle me", modelEntry = model.checkboxModel) {
+                    this@form.label = "Checkbox"
                 }
             }
             separator()
