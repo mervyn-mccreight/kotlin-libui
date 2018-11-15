@@ -29,7 +29,7 @@ fun main(args: Array<String>) {
 
     appWindow(
             title = "Data-binding Example #2",
-            width = 1000,
+            width = 800,
             height = 600
     ) {
         vbox {
