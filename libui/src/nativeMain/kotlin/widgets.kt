@@ -218,31 +218,50 @@ class Checkbox(label: String, private val modelEntry: ModelEntry<Boolean>) : Con
 ///////////////////////////////////////////////////////////////////////////////
 
 /** DSL builder for a drop down combo box that allow list selection only. */
+inline fun <T> Container.combobox(
+    values: List<T>,
+    selected: ModelEntry<T>? = null,
+    init: Combobox<T>.() -> Unit = {}
+): Combobox<T> = add(Combobox(values, selected).apply(init))
+
 inline fun Container.combobox(
-    init: Combobox.() -> Unit = {}
-): Combobox = add(Combobox().apply(init))
+    init: Combobox<String>.() -> Unit = {}
+) = combobox(emptyList(), null, init)
 
 /** Wrapper class for [uiCombobox] - a drop down combo box that allow list selection only. */
-class Combobox : Control<uiCombobox>(uiNewCombobox()) {
-
-    /** Adds the named entry to the end of the combobox.
-     *  If it is the first entry, it is automatically selected. */
-    fun item(text: String) = uiComboboxAppend(ptr, text)
+// TODO: ObservableList
+class Combobox<T>(private val values: List<T>, private val selected: ModelEntry<T>?) : Control<uiCombobox>(uiNewCombobox()) {
 
     /** Return or set the current selected option by index. */
     var value: Int
         get() = uiComboboxSelected(ptr)
         set(value) = uiComboboxSetSelected(ptr, value)
 
+    init {
+        values.forEach { item(it.toString()) }
+        selected?.let {
+            value = values.indexOf(it.get())
+            it.addListener { newValue -> this.value = values.indexOf(newValue) }
+
+            uiComboboxOnSelected(ptr, staticCFunction { _, ref -> with(ref.to<Combobox<T>>()) {
+                selected?.update(values[this.value])
+            }}, ref.asCPointer())
+        }
+    }
+
+    /** Adds the named entry to the end of the combobox.
+     *  If it is the first entry, it is automatically selected. */
+    fun item(text: String) = uiComboboxAppend(ptr, text)
+
     /** Function to be run when the user makes a change to the Combobox.
      *  Only one function can be registered at a time. */
-    fun action(block: Combobox.() -> Unit) {
+    fun action(block: Combobox<T>.() -> Unit) {
         action = block
-        uiComboboxOnSelected(ptr, staticCFunction { _, ref -> with(ref.to<Combobox>()) {
+        uiComboboxOnSelected(ptr, staticCFunction { _, ref -> with(ref.to<Combobox<T>>()) {
             action?.invoke(this)
         }}, ref.asCPointer())
     }
-    internal var action: (Combobox.() -> Unit)? = null
+    internal var action: (Combobox<T>.() -> Unit)? = null
 }
 
 ///////////////////////////////////////////////////////////////////////////////

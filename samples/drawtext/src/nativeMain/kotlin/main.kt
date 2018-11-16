@@ -1,7 +1,7 @@
+import kotlinx.cinterop.convert
 import libui.*
 import libui.ktx.*
 import libui.ktx.draw.*
-import kotlinx.cinterop.convert
 
 fun AttributedString.append(what: String, attr: Attribute, attr2: Attribute? = null) {
     val start = length
@@ -62,7 +62,7 @@ fun main(args: Array<String>) = appWindow(
 ) {
     hbox {
         lateinit var font: FontButton
-        lateinit var align: Combobox
+        lateinit var align: Combobox<String>
         lateinit var area: DrawArea
 
         vbox {

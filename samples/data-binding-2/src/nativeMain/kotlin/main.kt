@@ -8,6 +8,7 @@ fun main(args: Array<String>) {
         val searchFieldModel = ModelEntry("SearchField")
         val textAreaModel = ModelEntry("TextArea")
         val checkboxModel = ModelEntry(false)
+        val comboboxModel = ModelEntry("Item 1")
     }
 
     val model = Model()
@@ -18,7 +19,8 @@ fun main(args: Array<String>) {
                 "${model.passwordFieldModel.value}\n" +
                 "${model.searchFieldModel.value}\n" +
                 "${model.textAreaModel.value}\n" +
-                "${model.checkboxModel.value}"
+                "${model.checkboxModel.value}\n" +
+                "${model.comboboxModel.value}"
     }
 
     model.textFieldModel.addListener { updateValues() }
@@ -26,6 +28,7 @@ fun main(args: Array<String>) {
     model.searchFieldModel.addListener { updateValues() }
     model.textAreaModel.addListener { updateValues() }
     model.checkboxModel.addListener { updateValues() }
+    model.comboboxModel.addListener { updateValues() }
 
     appWindow(
             title = "Data-binding Example #2",
@@ -51,6 +54,7 @@ fun main(args: Array<String>) {
                 checkbox("Toggle me", modelEntry = model.checkboxModel) {
                     this@form.label = "Checkbox"
                 }
+                combobox(listOf("Item 1", "Item 2", "Item 3"), model.comboboxModel)
             }
             separator()
             group("Values") { stretchy = true }.form {
