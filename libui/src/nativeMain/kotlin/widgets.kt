@@ -220,13 +220,14 @@ class Checkbox(label: String, private val modelEntry: ModelEntry<Boolean>) : Con
 /** DSL builder for a drop down combo box that allow list selection only. */
 inline fun <T> Container.combobox(
     values: List<T>,
+    // TODO: allow null value for ModelEntry, if nothing is selected
     selected: ModelEntry<T>? = null,
     init: Combobox<T>.() -> Unit = {}
 ): Combobox<T> = add(Combobox(values, selected).apply(init))
 
 inline fun Container.combobox(
     init: Combobox<String>.() -> Unit = {}
-) = combobox(emptyList(), null, init)
+) = combobox(values = emptyList(), init = init)
 
 /** Wrapper class for [uiCombobox] - a drop down combo box that allow list selection only. */
 // TODO: ObservableList
